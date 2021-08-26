@@ -58,11 +58,13 @@ function App (){
   const authContext = React.useMemo(() => ({
     signIn: async (foundUser) => {
       //API Call 
-      const userToken = String(foundUser[0].userToken);
-      const userName = foundUser[0].username;
+      const userToken = String(foundUser.userToken);
+      const userName = foundUser.username;
+      const userEmail = foundUser.email;
       try {
         await AsyncStorage.setItem('userToken', userToken)
-        await AsyncStorage.setItem('user', userName)
+        await AsyncStorage.setItem('userEmail', userEmail)
+        await AsyncStorage.setItem('userName', userName)
       }catch(e){
         console.log(e)
       }

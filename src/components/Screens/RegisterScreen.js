@@ -14,6 +14,7 @@ import {
     Alert
 } from 'react-native';
 
+
 import * as Animatable from 'react-native-animatable'
 import LinearGradient from 'react-native-linear-gradient';
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
@@ -26,14 +27,16 @@ import { useTheme } from '@react-navigation/native';
 import { AuthContext } from '../config/context';
 import AsyncStorage from '@react-native-community/async-storage';
 
-const LoginScreen = ({navigation}) =>{
-
+function RegisterScreen({navigation}) {
+   
     
     const [data, setData] = React.useState({
         email: '',
         password: '',
+        password2: '',
         check_textInputChange: false,
         secureTextEntry: true,
+        secureTextEntry2: true,
         isValidUser: true,
         isValidPassword: true 
     })
@@ -48,36 +51,29 @@ const LoginScreen = ({navigation}) =>{
     const handlePasswordChange = (e) => {
         setData({ ...data, password:e })
     }
+    const handlePassword2Change = (e) => {
+        setData({ ...data, password2:e })
+    }
     const updateSecurityWord = () => {
         setData({ ...data, secureTextEntry: !data.secureTextEntry })
+    }
+    const updateSecurityWord2 = () => {
+        setData({ ...data, secureTextEntry2: !data.secureTextEntry2 })
     }
     const forgotPassword = () => {
         alert('\nUsuario: fiap \n Senha: fiap')
     }
     
-    const loginHandle = async (username, password) => {
-
-        let userEmail = ''
-        let userPassword = ''
+    const loginHandle = (username, password) => {
         
-        try{
-            userEmail = await  AsyncStorage.getItem('userEmail')
-            userPassword = await  AsyncStorage.getItem('userPassword')
-        }catch(e){
-            console.log(e);
+        const foundUser = Users.filter( item => {
+                return username == item.username && password == item.password
+            })
+        if(foundUser.length == 0) {
+            Alert.alert('Login Inválido','Usuário ou Senha Inválidos!', [{text: 'OK'}])
+            return
         }
-         const isValidUser  = ((username == userEmail) && (password == userPassword))
-         if(!isValidUser) {
-             Alert.alert('Login Inválido','Usuário ou Senha Inválidos!', [{text: 'OK'}])
-             return
-            }
-        signIn({
-            id: 1,
-            email: userEmail,
-            username:'fiap',
-            password: userPassword,
-            userToken:'fiap123123123123'
-        })
+        signIn(foundUser)
     }
 
     const handleValidUser = (e) =>{
@@ -94,6 +90,24 @@ const LoginScreen = ({navigation}) =>{
             })
         }
         
+    }
+    const cadastraUser = async () => {
+        
+        if(data.email != '' && data.password != '' && data.password2 != ''){
+            const userEmail = data.email
+            const userPassword = data.password
+            try {
+              await AsyncStorage.setItem('userEmail', userEmail)
+              await AsyncStorage.setItem('userPassword', userPassword)
+            }catch(e){
+              console.log(e)
+            }
+            
+            navigation.pop()
+            
+        }else{
+            alert('Todos os campos sao obrigatorios')
+        }
     }
 
     const handleValidPassword = (e) =>{
@@ -134,23 +148,20 @@ const LoginScreen = ({navigation}) =>{
                 </TouchableOpacity>
                 
             </View>
-            {data.isValidPassword ? null : errorMsg('Senha Inválida')}
-            <View style={styles.forgotPassword}>
-            <TouchableOpacity onPress={() => forgotPassword()}>
-                    <Text style={[styles.textforgotPassword, {color: colors.color_escura}]}>Esqueceu a Senha?</Text>
+            <Text style={[styles.text_footer, {marginTop: 35, color: colors.color_escura}]}>Confirma Senha</Text>
+            <View style={styles.action}>
+                <Feather name='lock' color={colors.color_escura} size={20} />
+                <TextInput onChangeText={(e) => handlePassword2Change(e)} onEndEditing={(e) => handlePassword2Change(e.nativeEvent.text)} secureTextEntry={data.secureTextEntry2} placeholderTextColor={colors.color_clara} placeholder={'Confirme a Senha'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
+                <TouchableOpacity  onPress={() => {updateSecurityWord2()}}>
+                    {data.secureTextEntry2? <Feather name='eye-off' color='grey' size={20}/> :<Feather name='eye' color='grey' size={20}/>}
                 </TouchableOpacity>
+                
             </View>
+            {data.password2 != data.password && errorMsg('as senhas nao coincidem')}
             <View style={styles.button}>
-                <TouchableOpacity onPress={() => loginHandle(data.email, data.password)} style={styles.signIn}>
+                <TouchableOpacity onPress={() => cadastraUser()} style={styles.signIn}>
                     <LinearGradient colors={[AZUL_CLARO_COLOR,AZUL_ESCURO_COLOR]} style={styles.signIn} > 
-                        <Text style={[styles.textSign, {color:CINZA_COLOR}]}>Entrar</Text>
-                    </LinearGradient>
-                </TouchableOpacity>
-            </View>
-            <View style={styles.button}>
-                <TouchableOpacity onPress={() => navigation.navigate('Register')} style={styles.register}>
-                    <LinearGradient colors={[AZUL_CLARO_COLOR,AZUL_ESCURO_COLOR]} style={styles.register} > 
-                        <Text style={[styles.textRgister, {color:CINZA_COLOR}]}>Registar</Text>
+                        <Text style={[styles.textSign, {color:CINZA_COLOR}]}>Cadastrar</Text>
                     </LinearGradient>
                 </TouchableOpacity>
             </View>
@@ -245,4 +256,4 @@ const styles = StyleSheet.create({
 });
 
 
-export default LoginScreen;
+export default RegisterScreen
