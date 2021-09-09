@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs'
 import HomeScreen from './HomeScreen';
 import Icon from 'react-native-vector-icons/Ionicons'
+import FAIcon from 'react-native-vector-icons/FontAwesome'
 import doisScreen from  './DoisScreen';
 import tresScreen from './TresScreen';
 
@@ -34,25 +35,13 @@ const MainTabScreen = () => {
             name="Teladois"
             component={doisStackScreen}
             options={{
-              tabBarLabel: 'Tela 2',
+              tabBarLabel: 'Transferencias',
               tabBarColor: VERMELHO_COLOR, 
               tabBarIcon: ({ color }) => (
-                <Icon name="ios-notifications" color={color} size={24} />
+                <FAIcon name="exchange" color={color} size={24} />
               ),
             }}
           />
-          <Tab.Screen
-            name="Telatres"
-            component={tresStackScreen}
-            options={{
-              tabBarLabel: 'Tela 3',
-              tabBarColor: VERDE_COLOR, 
-              tabBarIcon: ({ color }) => (
-                <Icon name="ios-person" color={color} size={24} />
-              ),
-            }}
-          />
-          
         </Tab.Navigator>
       );
 }
@@ -81,21 +70,9 @@ const doisStackScreen = ({navigation}) => {
        }}/> 
      </doisStack.Navigator>
     )
-   }
-   const tresStackScreen = ({navigation}) => {
-     return(
-       <tresStack.Navigator screenOptions = {{headerStyle: { backgroundColor: AZUL_ESCURO_COLOR  }, headerTintColor: CINZA_COLOR,  headerTitleStyle: 'bold'}}>
-         <tresStack.Screen name={'Teladois'} component={tresScreen} options={{
-         title : '',
-         headerTitleAlign: 'center',
-         headerLeft: () => (
-           <Icon.Button name='ios-menu' size={25} backgroundColor={AZUL_ESCURO_COLOR} onPress={() => navigation.openDrawer()} ></Icon.Button>
-         )
-       }}/>  
-       </tresStack.Navigator>
-     )
-   }
+  }
+   
    
 
-   export default MainTabScreen
+  export default MainTabScreen
    

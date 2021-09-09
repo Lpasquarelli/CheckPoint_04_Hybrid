@@ -1,5 +1,6 @@
 export default Users = [
     {
+        userName:'fiap',
         id: 1,
         email: 'fiap',
         username:'fiap',
@@ -7,7 +8,8 @@ export default Users = [
         userToken:'fiap123123123123'
     },
     {
-        id: 1,
+        userName:'fiapRoot',
+        id: 2,
         email: 'fiap@fiap.com',
         username:'fiap',
         password: 'fiap',

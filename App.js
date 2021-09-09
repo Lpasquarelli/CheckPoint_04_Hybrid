@@ -25,6 +25,7 @@ function App (){
 
   const initialLoginState = { 
     isLoading : true,
+    userID: null,
     userName: null,
     userToken: null,
   }
@@ -33,13 +34,16 @@ function App (){
       case 'RETRIEVE_TOKEN':
         return{
           ...prevState,
+          userID: action.id,
+          userName: action.name,
           userToken: action.token,
           isLoading:false
         };
       case 'LOGIN':
         return{
           ...prevState,
-          userName: action.id,
+          userID: action.id,
+          userName: action.name,
           userToken: action.token,
           isLoading:false
         };
@@ -59,21 +63,25 @@ function App (){
     signIn: async (foundUser) => {
       //API Call 
       const userToken = String(foundUser.userToken);
-      const userName = foundUser.username;
+      const userName = foundUser.userName;
       const userEmail = foundUser.email;
+      const userID = String(foundUser.id);
+
       try {
         await AsyncStorage.setItem('userToken', userToken)
         await AsyncStorage.setItem('userEmail', userEmail)
         await AsyncStorage.setItem('userName', userName)
+        await AsyncStorage.setItem('userID', userID)
       }catch(e){
         console.log(e)
       }
-      dispatch({type: 'LOGIN' , id: userName, token: userToken})
+      dispatch({type: 'LOGIN' , id: userID ,name: userName, token: userToken})
     },
     signOut: async () => {
 
       try {
         await AsyncStorage.removeItem('userToken')
+        await AsyncStorage.removeItem('Usuarios')
       }catch(e){
         console.log(e)
       }
@@ -87,15 +95,18 @@ function App (){
 
   useEffect(() =>{
     setTimeout(async () =>{
-      let userToken;
-      userToken = null;
+      let userToken  = null;
+      let userID  = null;
+      let userName  = null;
       
       try {
         userToken = await AsyncStorage.getItem('userToken')
+        userName = await AsyncStorage.getItem('userName')
+        userID = await AsyncStorage.getItem('userID')
       }catch(e){
         console.log(e)
       }
-      dispatch({type: 'RETRIEVE_TOKEN', token: userToken})
+      dispatch({type: 'RETRIEVE_TOKEN', id: userID ,name: userName, token: userToken})
     },1000)
   },[])
 

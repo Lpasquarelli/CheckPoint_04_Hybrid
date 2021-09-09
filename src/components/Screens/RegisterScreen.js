@@ -26,11 +26,21 @@ import { useTheme } from '@react-navigation/native';
 
 import { AuthContext } from '../config/context';
 import AsyncStorage from '@react-native-community/async-storage';
+import User from '../../../model/User';
+
+import {
+    removeAll, 
+    insertObject, 
+    insertString, 
+    read, 
+    readAll
+} from '../config/BD'
 
 function RegisterScreen({navigation}) {
    
     
     const [data, setData] = React.useState({
+        userName:'',
         email: '',
         password: '',
         password2: '',
@@ -45,6 +55,9 @@ function RegisterScreen({navigation}) {
     const { colors } = useTheme()
     const { signIn } = React.useContext(AuthContext)
 
+    const textInpuChangeName = (e) => {
+        e.length != 0 ? setData({ ...data, userName:e,check_textInputChange: true }) : setData({ ...data, userName:e,check_textInputChange: false })  
+    }
     const textInpuChange = (e) => {
         e.length != 0 ? setData({ ...data, email:e,check_textInputChange: true }) : setData({ ...data, email:e,check_textInputChange: false })  
     }
@@ -91,23 +104,77 @@ function RegisterScreen({navigation}) {
         }
         
     }
+    const sequenceID = (props) => {
+        let firstId = 0
+        let maxId = 0
+
+        props.map(item => {
+            firstId = item.id;
+            if(firstId > maxId)
+                maxId = firstId
+        })
+        return maxId + 1;
+    }
     const cadastraUser = async () => {
         
         if(data.email != '' && data.password != '' && data.password2 != ''){
             const userEmail = data.email
             const userPassword = data.password
             try {
-              await AsyncStorage.setItem('userEmail', userEmail)
-              await AsyncStorage.setItem('userPassword', userPassword)
+                //Guarda o Valor dos usuarios
+
+                let obj = []
+                await removeAll('Usuarios', (error) =>{
+                    console.log('apagado');
+                })
+
+                await read('Usuarios', (error2, value) => {
+                    if(error2){
+                        alert('Erro ao buscar usuario')
+                        return
+                    }
+                    obj.push(JSON.parse(value))
+                    console.log(obj[0]);
+                })
+                
+                const newObj = {
+                    id: 2,
+                    email: data.email,
+                    username: data.userName,
+                    password: data.password,
+                    userToken: `${data.userName + data.password}`
+                }
+
+
+
+                if(obj[0] == null){
+                    obj.pop()
+                    obj.push(newObj)
+                }else{
+                    obj.push(newObj)
+                }
+
+                await insertObject('Usuarios', obj,(error) => {
+                    if(error){
+                        alert('Nao foi possivel salvar')
+                        return    
+                    }
+
+                    alert('Usuario cadastrado')
+                    navigation.pop()
+                })
+                    
             }catch(e){
               console.log(e)
             }
+            // console.log(User);
             
-            navigation.pop()
+            
             
         }else{
             alert('Todos os campos sao obrigatorios')
         }
+           
     }
 
     const handleValidPassword = (e) =>{
@@ -131,6 +198,13 @@ function RegisterScreen({navigation}) {
             <Text style={styles.text_header}>Bem-Vindo!</Text>
         </View>
         <Animatable.View animation={'fadeInUpBig'} style={[styles.footer, {backgroundColor: colors.background}]}>
+            <Text style={[styles.text_footer,{color: colors.text}]}>Nome</Text>
+            <View style={styles.action}>
+                <FontAwesome name='user-o' color={colors.color_escura} size={20} />
+                <TextInput onChangeText={(e) => textInpuChangeName(e)} placeholderTextColor={colors.color_clara} placeholder={'Informe o Nome'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
+                {data.check_textInputChange ?<Animatable.View animation={'bounceIn'}><Feather name='check-circle' color='green' size={20} /></Animatable.View>: null}
+                
+            </View>
             <Text style={[styles.text_footer,{color: colors.text}]}>Email</Text>
             <View style={styles.action}>
                 <FontAwesome name='user-o' color={colors.color_escura} size={20} />
@@ -139,7 +213,7 @@ function RegisterScreen({navigation}) {
                 
             </View>
             {data.isValidUser ? null : errorMsg('Usuário Inválido')}
-            <Text style={[styles.text_footer, {marginTop: 35, color: colors.color_escura}]}>Senha</Text>
+            <Text style={[styles.text_footer, { color: colors.color_escura}]}>Senha</Text>
             <View style={styles.action}>
                 <Feather name='lock' color={colors.color_escura} size={20} />
                 <TextInput onChangeText={(e) => handlePasswordChange(e)} onEndEditing={(e) => handleValidPassword(e.nativeEvent.text)} secureTextEntry={data.secureTextEntry} placeholderTextColor={colors.color_clara} placeholder={'Informe a Senha'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
@@ -148,7 +222,7 @@ function RegisterScreen({navigation}) {
                 </TouchableOpacity>
                 
             </View>
-            <Text style={[styles.text_footer, {marginTop: 35, color: colors.color_escura}]}>Confirma Senha</Text>
+            <Text style={[styles.text_footer, {color: colors.color_escura}]}>Confirma Senha</Text>
             <View style={styles.action}>
                 <Feather name='lock' color={colors.color_escura} size={20} />
                 <TextInput onChangeText={(e) => handlePassword2Change(e)} onEndEditing={(e) => handlePassword2Change(e.nativeEvent.text)} secureTextEntry={data.secureTextEntry2} placeholderTextColor={colors.color_clara} placeholder={'Confirme a Senha'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
@@ -203,14 +277,16 @@ const styles = StyleSheet.create({
     },
     text_footer:{
         color: AZUL_ESCURO_COLOR,
-        fontSize: 18
+        fontSize: 18,
+        marginTop: 20
     },
     action:{
         flexDirection:'row',
-        marginTop: 10,
+        marginTop: 4,
         borderBottomWidth: 1,
         borderBottomColor: '#dbdbdb',
-        paddingBottom: 5
+        paddingBottom: 4,
+        marginTop: 10
     },
     textInput:{
         flex: 1,

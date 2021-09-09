@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 
 import { View, StyleSheet}  from 'react-native'
 import {
@@ -15,8 +15,15 @@ import {
 
 import AsyncStorage from '@react-native-community/async-storage'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import FAIcon from 'react-native-vector-icons/FontAwesome'
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
-
+import {
+    removeAll, 
+    insertObject, 
+    insertString, 
+    read, 
+    readAll
+} from '../config/BD'
 import { DrawerContentScrollView, DrawerItem} from '@react-navigation/drawer'
 
 
@@ -32,11 +39,21 @@ export function DrawerContent(props){
 
     const [user,setUser] = React.useState('HighLine')
 
+    useEffect(() => {
+        f()
+    }, [])
     const f = async () => {
+        let aux = null
+
         try{
-            let user;
-            user = await AsyncStorage.getItem('user')
-            setUser(user)
+            await read('Usuarios', (error2, value) => {
+                if(error2){
+                    alert('Erro ao buscar usuario')
+                    return
+                }
+                aux = JSON.parse(value)
+            })
+            setUser(aux[0].username)
 
         }catch(e) { 
             console.log(e);
@@ -54,7 +71,7 @@ export function DrawerContent(props){
                                 <Avatar.Image source={require('../../assets/img/logo.jpg')} style={{backgroundColor: paperTheme.dark ? 'transparent' : '#b5b5b5', margin: 2}} size={65} />
                                 <View style={{marginLeft: 15, flexDirection: 'column'}}> 
                                     <Title style={styles.title}>{user}</Title>
-                                    <Caption style={styles.caption}>Faculdade de Informatica e Administração Paulista</Caption>
+                                    <Caption style={styles.caption}>Bem-Vindo(a) ao seu banco de criptomoedas</Caption>
                                 </View>
                             </View>
                             
@@ -63,11 +80,9 @@ export function DrawerContent(props){
                     </Drawer.Section>
                     <Drawer.Section style={styles.drawerSection}>
                         <DrawerItem icon={({color, size}) => (
-                                <Icon name='account-cash-outline' color={color} size={size} />
-                            )} label='Tela 2' onPress={()=> {props.navigation.navigate('Teladois')}}/>
-                        <DrawerItem icon={({color, size}) => (
-                                <MaterialIcon name='payments' color={color} size={size} />
-                            )} label='Tela 3' onPress={()=> {props.navigation.navigate('Telatres')}}/>
+                                <FAIcon name='exchange' color={color} size={size} />
+                            )} label='Transferencias' onPress={()=> {props.navigation.navigate('Teladois')}}/>
+                        
                     </Drawer.Section>
                     <Drawer.Section title={'Preferencies'}>
                         <TouchableRipple onPress={() => toggleTheme()}>

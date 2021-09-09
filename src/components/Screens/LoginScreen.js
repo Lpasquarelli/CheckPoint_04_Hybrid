@@ -19,12 +19,20 @@ import LinearGradient from 'react-native-linear-gradient';
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import Feather from 'react-native-vector-icons/Feather'
 
-import Users from '../../../model/User';
 
 import { useTheme } from '@react-navigation/native';
 
 import { AuthContext } from '../config/context';
+import User from '../../../model/User';
 import AsyncStorage from '@react-native-community/async-storage';
+
+import {
+    removeAll, 
+    insertObject, 
+    insertString, 
+    read, 
+    readAll
+} from '../config/BD'
 
 const LoginScreen = ({navigation}) =>{
 
@@ -57,27 +65,32 @@ const LoginScreen = ({navigation}) =>{
     
     const loginHandle = async (username, password) => {
 
-        let userEmail = ''
-        let userPassword = ''
-        
         try{
-            userEmail = await  AsyncStorage.getItem('userEmail')
-            userPassword = await  AsyncStorage.getItem('userPassword')
+            // ve se o usuario existe no obj guardado
+            let user = null
+            await read('Usuarios', (error2, value) => {
+                if(error2){
+                    alert('Erro ao buscar usuario')
+                    return
+                }
+                user = JSON.parse(value)
+            })
+            if(user != null){
+                console.log(user[0]);
+                if(user[0].email == username && user[0].password == password){
+                    signIn(user[0])
+                }else{
+                    alert('Login Inválido','Usuário ou Senha Inválidos!', [{text: 'OK'}])
+                    return
+                }
+            }else{
+                alert('Login Inválido','Usuário ou Senha Inválidos!', [{text: 'OK'}])
+                return
+            }
+
         }catch(e){
             console.log(e);
         }
-         const isValidUser  = ((username == userEmail) && (password == userPassword))
-         if(!isValidUser) {
-             Alert.alert('Login Inválido','Usuário ou Senha Inválidos!', [{text: 'OK'}])
-             return
-            }
-        signIn({
-            id: 1,
-            email: userEmail,
-            username:'fiap',
-            password: userPassword,
-            userToken:'fiap123123123123'
-        })
     }
 
     const handleValidUser = (e) =>{
