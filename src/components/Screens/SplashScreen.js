@@ -24,12 +24,12 @@ const SplashScreen = ({navigation}) =>{
             <Animatable.Image animation={'bounceIn'} duration={1500} source={require('../../assets/img/logo2.png')} style={styles.logo} resizeMode='stretch'/>
         </View>
         <Animatable.View style={[ styles.footer, {backgroundColor: colors.background}]} animation={'fadeInUpBig'} >
-            <Text style={[styles.title, {color: colors.text}]}>Sign In</Text>
-            <Text style={styles.text}>Sign In with Account</Text>
+            <Text style={[styles.title, {color: colors.text}]}>Entre com sua Conta</Text>
+            <Text style={styles.text}>ou Registre-se</Text>
             <View style={styles.button}>
                 <TouchableOpacity onPress={() => {navigation.navigate('LoginScreen')}}>
                     <LinearGradient colors={[AZUL_CLARO_COLOR, AZUL_ESCURO_COLOR]} style={styles.signIn} >
-                        <Text style={styles.textSign}> Get Started</Text>
+                        <Text style={styles.textSign}>Começar</Text>
                         <MaterialIcons  name='navigate-next' color={CINZA_AZULADO_COLOR} size={20}/>
                     </LinearGradient>
                 </TouchableOpacity>

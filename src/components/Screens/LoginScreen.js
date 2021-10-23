@@ -25,6 +25,7 @@ import { useTheme } from '@react-navigation/native';
 
 import { AuthContext } from '../config/context';
 import AsyncStorage from '@react-native-community/async-storage';
+import { api } from '../config/axios';
 
 const LoginScreen = ({navigation}) =>{
 
@@ -57,8 +58,12 @@ const LoginScreen = ({navigation}) =>{
     
     const loginHandle = async (username, password) => {
 
-        let userEmail = ''
-        let userPassword = ''
+        //api.post('/leonardo.pasquarellif@gmail.com/pasqua123').then(res => console.log(res.data)).catch(e=> console.log(e))
+        let userEmail = 'leonardo.pasquarellif@gmail.com'
+        let userPassword = 'pasqua123'
+        let userName = 'Leonardo Pasquarelli'
+        let userId = 1
+        let userToken = 'djsfbbasdkjfbabsdifbpibpiweurbf'
         
         try{
             userEmail = await  AsyncStorage.getItem('userEmail')
@@ -66,17 +71,17 @@ const LoginScreen = ({navigation}) =>{
         }catch(e){
             console.log(e);
         }
-         const isValidUser  = ((username == userEmail) && (password == userPassword))
-         if(!isValidUser) {
-             Alert.alert('Login Inválido','Usuário ou Senha Inválidos!', [{text: 'OK'}])
-             return
-            }
+        //  const isValidUser  = ((username == userEmail) && (password == userPassword))
+        //  if(!isValidUser) {
+        //      Alert.alert('Login Inválido','Usuário ou Senha Inválidos!', [{text: 'OK'}])
+        //      return
+        //     }
         signIn({
-            id: 1,
+            id: userId,
             email: userEmail,
-            username:'fiap',
+            username:userName,
             password: userPassword,
-            userToken:'fiap123123123123'
+            userToken:userToken
         })
     }
 
@@ -208,7 +213,7 @@ const styles = StyleSheet.create({
     },
     button:{
         alignItems:'center',
-        marginTop:50
+        marginTop:20
     },
     signIn:{
         width: '100%',
@@ -218,8 +223,8 @@ const styles = StyleSheet.create({
         borderRadius: 10
     },
     register:{
-        width: '50%',
-        height: 30,
+        width: '70%',
+        height: 40,
         justifyContent: 'center',
         alignItems:'center',
         borderRadius: 10
@@ -232,7 +237,8 @@ const styles = StyleSheet.create({
         fontWeight:'bold'
     },
     forgotPassword:{
-        marginTop: 10
+        marginTop: 10,
+        marginBottom: 100
     },
     textforgotPassword:{
         color: AZUL_ESCURO_COLOR

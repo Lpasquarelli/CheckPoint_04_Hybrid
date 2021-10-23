@@ -4,6 +4,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs'
 import HomeScreen from './HomeScreen';
 import Icon from 'react-native-vector-icons/Ionicons'
+import FA from 'react-native-vector-icons/FontAwesome5'
+import Feather from 'react-native-vector-icons/Feather'
 import doisScreen from  './DoisScreen';
 import tresScreen from './TresScreen';
 
@@ -34,10 +36,10 @@ const MainTabScreen = () => {
             name="Teladois"
             component={doisStackScreen}
             options={{
-              tabBarLabel: 'Tela 2',
+              tabBarLabel: 'Transferencias',
               tabBarColor: VERMELHO_COLOR, 
               tabBarIcon: ({ color }) => (
-                <Icon name="ios-notifications" color={color} size={24} />
+                <FA name="exchange-alt" color={color} size={24} />
               ),
             }}
           />
@@ -45,10 +47,10 @@ const MainTabScreen = () => {
             name="Telatres"
             component={tresStackScreen}
             options={{
-              tabBarLabel: 'Tela 3',
+              tabBarLabel: 'Extrato',
               tabBarColor: VERDE_COLOR, 
               tabBarIcon: ({ color }) => (
-                <Icon name="ios-person" color={color} size={24} />
+                <Feather name="list" color={color} size={24} />
               ),
             }}
           />

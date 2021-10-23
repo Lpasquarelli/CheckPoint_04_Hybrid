@@ -22,6 +22,7 @@ const Drawer = createDrawerNavigator()
 function App (){
 
   const [isDarkTheme, setIsDarkTheme] = React.useState(false);
+  
 
   const initialLoginState = { 
     isLoading : true,
@@ -57,14 +58,20 @@ function App (){
   console.log(loginState);
   const authContext = React.useMemo(() => ({
     signIn: async (foundUser) => {
-      //API Call 
+
       const userToken = String(foundUser.userToken);
       const userName = foundUser.username;
       const userEmail = foundUser.email;
+      const userId = foundUser.id;
+
       try {
         await AsyncStorage.setItem('userToken', userToken)
         await AsyncStorage.setItem('userEmail', userEmail)
         await AsyncStorage.setItem('userName', userName)
+        await AsyncStorage.setItem('userId', String(userId))
+
+        
+        
       }catch(e){
         console.log(e)
       }

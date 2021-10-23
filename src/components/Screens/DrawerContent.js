@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 
 import { View, StyleSheet}  from 'react-native'
 import {
@@ -15,7 +15,9 @@ import {
 
 import AsyncStorage from '@react-native-community/async-storage'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
+import FA from 'react-native-vector-icons/FontAwesome5'
+import Feather from 'react-native-vector-icons/Feather'
+import AntDesign from 'react-native-vector-icons/AntDesign'
 
 import { DrawerContentScrollView, DrawerItem} from '@react-navigation/drawer'
 
@@ -30,17 +32,33 @@ export function DrawerContent(props){
     
     const { signOut,toggleTheme } = React.useContext(AuthContext)
 
-    const [user,setUser] = React.useState('HighLine')
+    const [user,setUser] = React.useState('')
+    const [userID,setUserID] = React.useState('')
+
+    useEffect(() => {
+        f()
+    }, [])
 
     const f = async () => {
         try{
             let user;
-            user = await AsyncStorage.getItem('user')
+            let userId;
+            user = await AsyncStorage.getItem('userName')
+            userId = await AsyncStorage.getItem('userId')
+
+            setUserID(userId)
             setUser(user)
 
         }catch(e) { 
             console.log(e);
         }
+    }
+    const desativar = () => {
+        //get em saldos
+
+        //se tiver saldo em alguma moeda ele nao pode desativar
+
+        //se tiver ele apaga as contas e saldos e transferencias das tabelas e desloga
     }
 
 
@@ -54,7 +72,7 @@ export function DrawerContent(props){
                                 <Avatar.Image source={require('../../assets/img/logo.jpg')} style={{backgroundColor: paperTheme.dark ? 'transparent' : '#b5b5b5', margin: 2}} size={65} />
                                 <View style={{marginLeft: 15, flexDirection: 'column'}}> 
                                     <Title style={styles.title}>{user}</Title>
-                                    <Caption style={styles.caption}>Faculdade de Informatica e Administração Paulista</Caption>
+                                    <Caption style={styles.caption}>{1234} / {'123409-5'}{/*CHAMADA PARA BUSCAR CONTA E AGENCIA*/}</Caption>
                                 </View>
                             </View>
                             
@@ -63,11 +81,11 @@ export function DrawerContent(props){
                     </Drawer.Section>
                     <Drawer.Section style={styles.drawerSection}>
                         <DrawerItem icon={({color, size}) => (
-                                <Icon name='account-cash-outline' color={color} size={size} />
-                            )} label='Tela 2' onPress={()=> {props.navigation.navigate('Teladois')}}/>
+                                <FA name='exchange-alt' color={color} size={size} />
+                            )} label='Transferencia' onPress={()=> {props.navigation.navigate('Teladois')}}/>
                         <DrawerItem icon={({color, size}) => (
-                                <MaterialIcon name='payments' color={color} size={size} />
-                            )} label='Tela 3' onPress={()=> {props.navigation.navigate('Telatres')}}/>
+                                <Feather name='list' color={color} size={size} />
+                            )} label='Extrato' onPress={()=> {props.navigation.navigate('Telatres')}}/>
                     </Drawer.Section>
                     <Drawer.Section title={'Preferencies'}>
                         <TouchableRipple onPress={() => toggleTheme()}>
@@ -80,6 +98,11 @@ export function DrawerContent(props){
                     </Drawer.Section>
                 </View>
             </DrawerContentScrollView>
+            <Drawer.Section style={StyleSheet.bottomDrawerSection}>
+                <DrawerItem icon={({color, size}) => (
+                    <AntDesign name='deleteuser' color={color} size={size} />
+                )} label='Desativar Conta' onPress={()=> {desativar()}}/>
+            </Drawer.Section>
             <Drawer.Section style={StyleSheet.bottomDrawerSection}>
                 <DrawerItem icon={({color, size}) => (
                     <Icon name='exit-to-app' color={color} size={size} />
