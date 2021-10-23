@@ -23,13 +23,14 @@ import { DrawerContentScrollView, DrawerItem} from '@react-navigation/drawer'
 
 
 import { AuthContext } from '../config/context'
+import { api } from '../config/axios'
 
 
 
 export function DrawerContent(props){
     
     const paperTheme = useTheme()
-    
+    const [saldos,setSaldos] = React.useState({})
     const { signOut,toggleTheme } = React.useContext(AuthContext)
 
     const [user,setUser] = React.useState('')
@@ -53,8 +54,38 @@ export function DrawerContent(props){
             console.log(e);
         }
     }
-    const desativar = () => {
-        //get em saldos
+
+    const getUser = async (userId) =>{
+        await api.get('/Banco/'+userId).then(res=>{
+            setSaldos(res.data)
+        })
+    }
+
+    const desativar = async () => {
+
+        
+        try{
+                //get em saldos
+            let userId;
+
+            userId = await AsyncStorage.getItem('userId')
+            let contaID;
+
+            await getUser(userId)
+
+            console.log(userId);
+            
+            if((saldos.vlSaldoBitcoin == 0) && (saldos.vlSaldoDogecoin == 0) && (saldos.vlSaldoDolar == 0) && (saldos.vlSaldoReal == 0)){
+                await api.delete(`/Banco/${userId}`).then(res => signOut())
+            }else{
+                alert('Voce so pode apagar a conta quando o saldo estiver zerado')
+            }
+        }catch(e){
+            console.log(e);
+        }
+
+      
+
 
         //se tiver saldo em alguma moeda ele nao pode desativar
 

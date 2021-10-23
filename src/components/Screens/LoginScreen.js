@@ -39,7 +39,6 @@ const LoginScreen = ({navigation}) =>{
         isValidPassword: true 
     })
     
-    
     const { colors } = useTheme()
     const { signIn } = React.useContext(AuthContext)
 
@@ -58,24 +57,24 @@ const LoginScreen = ({navigation}) =>{
     
     const loginHandle = async (username, password) => {
 
-        //api.post('/leonardo.pasquarellif@gmail.com/pasqua123').then(res => console.log(res.data)).catch(e=> console.log(e))
-        let userEmail = 'leonardo.pasquarellif@gmail.com'
-        let userPassword = 'pasqua123'
-        let userName = 'Leonardo Pasquarelli'
-        let userId = 1
-        let userToken = 'djsfbbasdkjfbabsdifbpibpiweurbf'
+        let userEmail = ''
+        let userPassword = ''
+        let userName = ''
+        let userId = 0
+        let userToken = ''
+
+        await api.post('/Login',{
+            email: username,
+            senha: password
+        }).then(res => {
+            userEmail = res.data.user.dS_LOGIN
+            userPassword = res.data.user.dS_SENHA
+            userName = res.data.user.dS_NOME + ' ' + res.data.user.dS_SOBRENOME 
+            userId = res.data.user.iD_USUARIO
+            userToken = res.data.token
+        }).catch(e=> console.log(e))
         
-        try{
-            userEmail = await  AsyncStorage.getItem('userEmail')
-            userPassword = await  AsyncStorage.getItem('userPassword')
-        }catch(e){
-            console.log(e);
-        }
-        //  const isValidUser  = ((username == userEmail) && (password == userPassword))
-        //  if(!isValidUser) {
-        //      Alert.alert('Login Inválido','Usuário ou Senha Inválidos!', [{text: 'OK'}])
-        //      return
-        //     }
+        
         signIn({
             id: userId,
             email: userEmail,

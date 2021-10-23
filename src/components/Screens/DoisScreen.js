@@ -16,7 +16,8 @@ import { colors } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { TextInput } from 'react-native-paper';
 import { VERMELHO_COLOR } from '../globalStyles';
-
+import { api } from '../config/axios';
+import  AsyncStorage  from '@react-native-community/async-storage';
 const PagarScreen = ({navigation}) =>{
 
   const { colors } = useTheme()
@@ -34,7 +35,26 @@ const PagarScreen = ({navigation}) =>{
   )
 }
 
-const validaTransferencia = () => {
+const validaTransferencia = async (agenciaDestino,valor,contaDestino) => {
+
+  let userId;
+
+  userId = await AsyncStorage.getItem('userId')
+  let contaID;
+
+  
+  await api.get('/Banco/'+userId).then(res=>{
+    contaID = res.data.cdConta;
+  })
+
+  await api.get('/Banco/ContaByNumero/'+contaDestino).then(res=>{
+    contaDestino = res.data.cdConta;
+  })
+
+  let retorno;
+  await api.put(`Banco/Transfere/${contaID}/${agenciaDestino}/${valor}/${contaDestino}`).then(res=>{
+    console.log(res.data);
+  })
 
   return true
 }
@@ -44,7 +64,6 @@ const NovaTransferencia = () => {
   const [contaDestino, setContaDestino] = useState()
   const [agenciaDestino, setAgenciaDestino] = useState()
   const [valor, setValor] = useState()
-  const [senha, setSenha] = useState()
 
   const  Transferencia = async () => {
 
@@ -61,18 +80,13 @@ const NovaTransferencia = () => {
       alert('informe o valor da transferencia')
       return
     }
-    if(senha == null){
-      alert('informe a senha')
-      return
-    }
 
-    if(await validaTransferencia){
-      alert(`Transferencia de ${valor} realizada para conta ${contaDestino} e agencia ${agenciaDestino}`)
+    if(await validaTransferencia(agenciaDestino,valor,contaDestino)){
+      alert(`Transferencia de ${valor} realizada para conta ${contaDestino}`)
 
       setContaDestino(null)
       setAgenciaDestino(null)
       setValor(null)
-      setSenha(null)
     }
 
     
@@ -80,7 +94,6 @@ const NovaTransferencia = () => {
     console.log(contaDestino)
     console.log(agenciaDestino)
     console.log(valor)
-    console.log(senha)
   }
 
   const handleContaDestino = (e) =>{
@@ -91,9 +104,6 @@ const NovaTransferencia = () => {
   }
   const handleValor = (e) => {
     setValor(e)
-  }
-  const handleSenha = (e) => {
-    setSenha(e)
   }
   const { colors } = useTheme()
   const theme = useTheme()
@@ -109,16 +119,12 @@ const NovaTransferencia = () => {
           <TextInput style={{height: 40}} value={contaDestino} onChangeText={(e) => handleContaDestino(e)} maxLength={12} keyboardType = 'numeric' />
         </View>
         <View style={{padding:12}}>
-          <Text style={{color: colors.text}}>Agencia Destino:</Text>
+          <Text style={{color: colors.text}}>Tipo de Moeda:</Text>
           <TextInput style={{height: 40}} value={agenciaDestino} onChangeText={(e) => handleAgenciaDestino(e)}  maxLength={12} keyboardType = 'numeric' />
         </View>
         <View style={{padding:12}}>
           <Text style={{color: colors.text}}>Valor:</Text>
           <TextInput style={{height: 40}} value={valor} onChangeText={(e) => handleValor(e)} maxLength={20} keyboardType = 'numeric' />
-        </View>
-        <View style={{padding:12}}>
-          <Text style={{color: colors.text}}>Senha:</Text>
-          <TextInput style={{height: 40}} value={senha} onChangeText={(e) => handleSenha(e)} maxLength={4} keyboardType = 'numeric' />
         </View>
         <View style={{alignItems:'center', marginVertical: 12}}>
           <TouchableOpacity onPress={() => Transferencia() } style={[styles.transferir,{backgroundColor: AZUL_ESCURO_COLOR}]}>

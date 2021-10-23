@@ -5,12 +5,15 @@ import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity
+  TouchableOpacity,
+  RefreshControl
 } from 'react-native';
 
 import { useTheme } from '@react-navigation/native'; 
 import axios from 'axios';
 import Icon  from 'react-native-vector-icons/Feather';
+import { api } from '../config/axios';
+import  AsyncStorage  from '@react-native-community/async-storage';
 
 const ReceberScreen = ({navigation}) =>{
   const { colors } = useTheme()
@@ -44,11 +47,38 @@ const ReceberScreen = ({navigation}) =>{
   ]
 
   useEffect(() => {
-    setObj(aux)
+    buscaExtrato()
   }, [])
 
+  const buscaExtrato = async () =>{
+
+    let userId;
+
+    userId = await AsyncStorage.getItem('userId')
+    let contaID;
+
+    
+    await api.get('/Banco/'+userId).then(res=>{
+      contaID = res.data.idConta;
+    })
+    
+    await api.get('/Banco/Extrato/'+contaID).then(res=>{
+      setObj(res.data)
+      console.log(res.data);
+    })
+
+  }
+
+  const [refreshing, setRefreshing] = React.useState(false);
+
+const onRefresh = React.useCallback(() => { 
+  setRefreshing(true);
+  buscaExtrato()
+  setRefreshing(false)
+})
+
   return(
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> }>
       <ExtratoPorMoeda obj={obj} tp={1}/>
       <ExtratoPorMoeda obj={obj} tp={2}/>
       <ExtratoPorMoeda obj={obj} tp={3}/>
@@ -61,7 +91,7 @@ const ExtratoPorMoeda = ({obj, tp}) => {
   const { colors } = useTheme()
   const theme = useTheme()
 
-  const [visible, setVisible] = useState(false)
+  const [visible, setVisible] = useState(true)
 
   return(
     <View style={{padding:12, borderWidth:1, borderColor: "#f7f7f7", marginBottom:12}}>
@@ -76,12 +106,8 @@ const ExtratoPorMoeda = ({obj, tp}) => {
             <View style={{ justifyContent:'center'}}>
               <Text style={{color: colors.text}}>{ new Date(item.data).toLocaleDateString()}</Text>
             </View>
-            <View style={{ justifyContent:'center'}}>
-              <Text style={{color: colors.text}}>{item.tipoMovimentacao}</Text>
-            </View>
             <View style={{justifyContent:'center'}}>
               <Text style={{color: colors.text}}>Valor: {item.valor}</Text>
-              <Text style={{color: colors.text}}>Tipo: {item.tipoMoeda}</Text>
             </View>
           </View>
       )): null}

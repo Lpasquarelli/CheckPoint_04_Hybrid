@@ -26,12 +26,16 @@ import { useTheme } from '@react-navigation/native';
 
 import { AuthContext } from '../config/context';
 import AsyncStorage from '@react-native-community/async-storage';
+import { ScrollView } from 'react-native-gesture-handler';
+import { api } from '../config/axios';
 
 function RegisterScreen({navigation}) {
    
     
     const [data, setData] = React.useState({
         email: '',
+        nome:'',
+        sobrenome:'',
         password: '',
         password2: '',
         check_textInputChange: false,
@@ -47,6 +51,12 @@ function RegisterScreen({navigation}) {
 
     const textInpuChange = (e) => {
         e.length != 0 ? setData({ ...data, email:e,check_textInputChange: true }) : setData({ ...data, email:e,check_textInputChange: false })  
+    }
+    const handlenomeChange = (e) => {
+        setData({ ...data, nome:e })
+    }
+    const handlesobrenomeChange = (e) => {
+        setData({ ...data, sobrenome:e })
     }
     const handlePasswordChange = (e) => {
         setData({ ...data, password:e })
@@ -91,18 +101,49 @@ function RegisterScreen({navigation}) {
         }
         
     }
+    const handleValidUser2 = (e) =>{
+        /////// validar se existe
+        if (e.length > 0){
+            setData({
+                ...data,
+                isValidUser: true
+            })
+        } else{
+            setData({
+                ...data,
+                isValidUser: true
+            })
+        }
+        
+    }
+    const handleValidUser3 = (e) =>{
+        /////// validar se existe
+        if (e.length > 0){
+            setData({
+                ...data,
+                isValidUser: true
+            })
+        } else{
+            setData({
+                ...data,
+                isValidUser: true
+            })
+        }
+        
+    }
     const cadastraUser = async () => {
         
-        if(data.email != '' && data.password != '' && data.password2 != ''){
-            const userEmail = data.email
-            const userPassword = data.password
-            try {
-              await AsyncStorage.setItem('userEmail', userEmail)
-              await AsyncStorage.setItem('userPassword', userPassword)
-            }catch(e){
-              console.log(e)
-            }
-            
+        if(data.nome != '' && data.sobrenome != '' && data.email != '' && data.password != '' && data.password2 != ''){
+            await api.post(`Banco/addcliente`,
+            {
+                "dS_NOME": data.nome,
+                "dS_SOBRENOME": data.sobrenome,
+                "nR_IDADE": 20,
+                "nR_CPF": "12312312323",
+                "dT_NASCIMENTO": "2021-10-23T22:56:37.755Z",
+                "dS_LOGIN": data.email,
+                "dS_SENHA": data.password
+            })
             navigation.pop()
             
         }else{
@@ -131,10 +172,25 @@ function RegisterScreen({navigation}) {
             <Text style={styles.text_header}>Bem-Vindo!</Text>
         </View>
         <Animatable.View animation={'fadeInUpBig'} style={[styles.footer, {backgroundColor: colors.background}]}>
+            <ScrollView>
             <Text style={[styles.text_footer,{color: colors.text}]}>Email</Text>
             <View style={styles.action}>
                 <FontAwesome name='user-o' color={colors.color_escura} size={20} />
                 <TextInput onChangeText={(e) => textInpuChange(e)} onEndEditing={(e) => handleValidUser(e.nativeEvent.text)} placeholderTextColor={colors.color_clara} placeholder={'Informe o Email'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
+                {data.check_textInputChange ?<Animatable.View animation={'bounceIn'}><Feather name='check-circle' color='green' size={20} /></Animatable.View>: null}
+                
+            </View>
+            <Text style={[styles.text_footer,{marginTop: 35,color: colors.text}]}>Nome</Text>
+            <View style={styles.action}>
+                <FontAwesome name='user-o' color={colors.color_escura} size={20} />
+                <TextInput onChangeText={(e) => handlenomeChange(e)} onEndEditing={(e) => handleValidUser2(e.nativeEvent.text)} placeholderTextColor={colors.color_clara} placeholder={'Informe o Email'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
+                {data.check_textInputChange ?<Animatable.View animation={'bounceIn'}><Feather name='check-circle' color='green' size={20} /></Animatable.View>: null}
+                
+            </View>
+            <Text style={[styles.text_footer,{marginTop: 35,color: colors.text}]}>Sobrenome</Text>
+            <View style={styles.action}>
+                <FontAwesome name='user-o' color={colors.color_escura} size={20} />
+                <TextInput onChangeText={(e) => handlesobrenomeChange(e)} onEndEditing={(e) => handleValidUser3(e.nativeEvent.text)} placeholderTextColor={colors.color_clara} placeholder={'Informe o Email'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
                 {data.check_textInputChange ?<Animatable.View animation={'bounceIn'}><Feather name='check-circle' color='green' size={20} /></Animatable.View>: null}
                 
             </View>
@@ -165,6 +221,7 @@ function RegisterScreen({navigation}) {
                     </LinearGradient>
                 </TouchableOpacity>
             </View>
+            </ScrollView>
         </Animatable.View>
     </View>
   )
