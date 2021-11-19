@@ -8,51 +8,25 @@ import FA from 'react-native-vector-icons/FontAwesome5'
 import Feather from 'react-native-vector-icons/Feather'
 import doisScreen from  './DoisScreen';
 import tresScreen from './TresScreen';
+import { colors } from 'react-native-elements';
+import { useTheme } from 'react-native-paper';
 
 const HomeStack = createStackNavigator()
 const doisStack = createStackNavigator()
 const tresStack = createStackNavigator()
 const Tab = createMaterialBottomTabNavigator();
-
 const MainTabScreen = () => {
+  const theme = useTheme()
     return (
         <Tab.Navigator
           initialRouteName="Home"
           activeColor={'#fff'}
-          barStyle={{ backgroundColor: AZUL_ESCURO_COLOR }}
+          barStyle={{ backgroundColor: theme.dark ? '#333333' : "#fff" }}
         >
           <Tab.Screen
             name="Home"
             component={HomeStackScreen}
-            options={{
-              tabBarLabel: 'Home',
-              tabBarColor: AZUL_CLARO_COLOR, 
-              tabBarIcon: ({ color }) => (
-                <Icon name="ios-home" color={color} size={24} />
-              ),
-            }}
-          />
-          <Tab.Screen
-            name="Teladois"
-            component={doisStackScreen}
-            options={{
-              tabBarLabel: 'Transferencias',
-              tabBarColor: VERMELHO_COLOR, 
-              tabBarIcon: ({ color }) => (
-                <FA name="exchange-alt" color={color} size={24} />
-              ),
-            }}
-          />
-          <Tab.Screen
-            name="Telatres"
-            component={tresStackScreen}
-            options={{
-              tabBarLabel: 'Extrato',
-              tabBarColor: VERDE_COLOR, 
-              tabBarIcon: ({ color }) => (
-                <Feather name="list" color={color} size={24} />
-              ),
-            }}
+            
           />
           
         </Tab.Navigator>
@@ -60,43 +34,17 @@ const MainTabScreen = () => {
 }
 const HomeStackScreen = ({navigation}) => {
   return(
-   <HomeStack.Navigator screenOptions = {{headerStyle: { backgroundColor: AZUL_CLARO_COLOR  }, headerTintColor: CINZA_COLOR,  headerTitleStyle: 'bold'}}>
+   <HomeStack.Navigator screenOptions = {{headerStyle: { backgroundColor: AZUL_ESCURO_COLOR  }, headerTintColor: CINZA_COLOR,  headerTitleStyle: 'bold'}}>
      <HomeStack.Screen name={'Home'} component={HomeScreen} options={{
        title : '',
        headerTitleAlign: 'center',
        headerLeft: () => (
-         <Icon.Button name='ios-menu' size={25} backgroundColor={AZUL_CLARO_COLOR} color={CINZA_COLOR} onPress={() => navigation.openDrawer()} ></Icon.Button>
+         <Icon.Button name='ios-menu' size={25} backgroundColor={AZUL_ESCURO_COLOR} color={CINZA_COLOR} onPress={() => navigation.openDrawer()} ></Icon.Button>
        )
      }}/> 
    </HomeStack.Navigator>
   )
  }
-const doisStackScreen = ({navigation}) => {
-    return(
-     <doisStack.Navigator screenOptions = {{headerStyle: { backgroundColor: AZUL_ESCURO_COLOR  }, headerTintColor: CINZA_COLOR,  headerTitleStyle: 'bold'}}>
-       <doisStack.Screen name={'Dois'} component={doisScreen} options={{
-         title : '',
-         headerTitleAlign: 'center',
-         headerLeft: () => (
-           <Icon.Button name='ios-menu' size={25} backgroundColor={AZUL_ESCURO_COLOR} color={CINZA_COLOR} onPress={() => navigation.openDrawer()} ></Icon.Button>
-         )
-       }}/> 
-     </doisStack.Navigator>
-    )
-   }
-   const tresStackScreen = ({navigation}) => {
-     return(
-       <tresStack.Navigator screenOptions = {{headerStyle: { backgroundColor: AZUL_ESCURO_COLOR  }, headerTintColor: CINZA_COLOR,  headerTitleStyle: 'bold'}}>
-         <tresStack.Screen name={'Teladois'} component={tresScreen} options={{
-         title : '',
-         headerTitleAlign: 'center',
-         headerLeft: () => (
-           <Icon.Button name='ios-menu' size={25} backgroundColor={AZUL_ESCURO_COLOR} onPress={() => navigation.openDrawer()} ></Icon.Button>
-         )
-       }}/>  
-       </tresStack.Navigator>
-     )
-   }
    
 
    export default MainTabScreen

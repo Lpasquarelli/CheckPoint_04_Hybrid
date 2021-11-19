@@ -16,6 +16,7 @@ import { ActivityIndicator } from 'react-native-paper';
 import { AuthContext } from './src/components/config/context';
 
 import  AsyncStorage  from '@react-native-community/async-storage';
+import NewDoacao from './src/components/Screens/NewDoacao';
 
 const Drawer = createDrawerNavigator()
 
@@ -57,18 +58,20 @@ function App (){
 
   console.log(loginState);
   const authContext = React.useMemo(() => ({
-    signIn: async (foundUser) => {
+    signIn: async (foundUser, categoria) => {
 
       const userToken = String(foundUser.userToken);
       const userName = foundUser.username;
       const userEmail = foundUser.email;
       const userId = foundUser.id;
+      const CatUser = categoria;
 
       try {
         await AsyncStorage.setItem('userToken', userToken)
         await AsyncStorage.setItem('userEmail', userEmail)
         await AsyncStorage.setItem('userName', userName)
         await AsyncStorage.setItem('userId', String(userId))
+        await AsyncStorage.setItem('categoria', String(CatUser))
 
         
         
@@ -109,7 +112,7 @@ function App (){
   if(loginState.isLoading){
     return (
       <View style={{flex:1,justifyContent:'center', alignItens:'center', backgroundColor: '#141414'}}>
-        <Image source={require('./src/assets/img/logo.jpg')} style={{width: '100%', height: '50%'}} />
+        <Image source={require('./src/assets/img/logo2.png')} style={{width: '100%', height: '50%'}} />
       </View>
     )
   }
@@ -152,6 +155,7 @@ const theme  = isDarkTheme ? CustomDarkTheme : CustomDefaultTheme
         {loginState.userToken !== null ? (
           <Drawer.Navigator drawerContent={props => <DrawerContent {...props} />} initialRouteName={'Home'} >
             <Drawer.Screen name='Home' component={MainTabScreen} />
+            <Drawer.Screen name='Doacao' component={NewDoacao} />
           </Drawer.Navigator> 
         ): <RootStackScreen />}
       </NavigationContainer>

@@ -30,8 +30,10 @@ import { api } from '../config/axios'
 export function DrawerContent(props){
     
     const paperTheme = useTheme()
-    const [saldos,setSaldos] = React.useState({})
     const { signOut,toggleTheme } = React.useContext(AuthContext)
+    const [conta, setConta] = React.useState(0)
+    const [agencia, setAgencia] = React.useState(0)
+    const [] = React.useState(0)
 
     const [user,setUser] = React.useState('')
     const [userID,setUserID] = React.useState('')
@@ -47,6 +49,11 @@ export function DrawerContent(props){
             user = await AsyncStorage.getItem('userName')
             userId = await AsyncStorage.getItem('userId')
 
+            await api.get('/Banco/'+userId).then(res=>{
+                setConta(res.data.cdConta)
+                setAgencia(res.data.nrAgencia)
+            })
+
             setUserID(userId)
             setUser(user)
 
@@ -56,40 +63,33 @@ export function DrawerContent(props){
     }
 
     const getUser = async (userId) =>{
-        await api.get('/Banco/'+userId).then(res=>{
-            setSaldos(res.data)
-        })
+        
     }
 
     const desativar = async () => {
 
-        
         try{
                 //get em saldos
             let userId;
 
             userId = await AsyncStorage.getItem('userId')
-            let contaID;
 
-            await getUser(userId)
-
-            console.log(userId);
+            let saldos = {}
+            await api.get('/Banco/'+userId).then(res=>{
+                saldos = res.data
+                
+            })
             
             if((saldos.vlSaldoBitcoin == 0) && (saldos.vlSaldoDogecoin == 0) && (saldos.vlSaldoDolar == 0) && (saldos.vlSaldoReal == 0)){
-                await api.delete(`/Banco/${userId}`).then(res => signOut())
+                await api.delete(`/Banco/${userId}`)
+                signOut()
             }else{
-                alert('Voce so pode apagar a conta quando o saldo estiver zerado')
+                alert('Os Saldos devem estar zerados para realizar a desativação da conta')
             }
+
         }catch(e){
             console.log(e);
         }
-
-      
-
-
-        //se tiver saldo em alguma moeda ele nao pode desativar
-
-        //se tiver ele apaga as contas e saldos e transferencias das tabelas e desloga
     }
 
 
@@ -100,24 +100,16 @@ export function DrawerContent(props){
                     <Drawer.Section style={styles.drawerSection}>
                         <View style={styles.userInfoSection}>
                             <View style={{flexDirection:'row', marginTop: 15}}>
-                                <Avatar.Image source={require('../../assets/img/logo.jpg')} style={{backgroundColor: paperTheme.dark ? 'transparent' : '#b5b5b5', margin: 2}} size={65} />
+                                <Avatar.Image source={require('../../assets/img/logo2.png')} style={{backgroundColor: paperTheme.dark ? 'transparent' : '#b5b5b5', margin: 2}} size={65} />
                                 <View style={{marginLeft: 15, flexDirection: 'column'}}> 
                                     <Title style={styles.title}>{user}</Title>
-                                    <Caption style={styles.caption}>{1234} / {'123409-5'}{/*CHAMADA PARA BUSCAR CONTA E AGENCIA*/}</Caption>
                                 </View>
                             </View>
                             
                         </View>
 
                     </Drawer.Section>
-                    <Drawer.Section style={styles.drawerSection}>
-                        <DrawerItem icon={({color, size}) => (
-                                <FA name='exchange-alt' color={color} size={size} />
-                            )} label='Transferencia' onPress={()=> {props.navigation.navigate('Teladois')}}/>
-                        <DrawerItem icon={({color, size}) => (
-                                <Feather name='list' color={color} size={size} />
-                            )} label='Extrato' onPress={()=> {props.navigation.navigate('Telatres')}}/>
-                    </Drawer.Section>
+                    
                     <Drawer.Section title={'Preferencies'}>
                         <TouchableRipple onPress={() => toggleTheme()}>
                             <View style={styles.preference} pointerEvents={'none'}>
@@ -129,11 +121,6 @@ export function DrawerContent(props){
                     </Drawer.Section>
                 </View>
             </DrawerContentScrollView>
-            <Drawer.Section style={StyleSheet.bottomDrawerSection}>
-                <DrawerItem icon={({color, size}) => (
-                    <AntDesign name='deleteuser' color={color} size={size} />
-                )} label='Desativar Conta' onPress={()=> {desativar()}}/>
-            </Drawer.Section>
             <Drawer.Section style={StyleSheet.bottomDrawerSection}>
                 <DrawerItem icon={({color, size}) => (
                     <Icon name='exit-to-app' color={color} size={size} />

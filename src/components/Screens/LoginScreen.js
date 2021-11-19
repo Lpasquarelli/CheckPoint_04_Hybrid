@@ -11,7 +11,8 @@ import {
     Platform,
     TextInput,
     StatusBar,
-    Alert
+    Alert,
+    Picker
 } from 'react-native';
 
 import * as Animatable from 'react-native-animatable'
@@ -29,7 +30,7 @@ import { api } from '../config/axios';
 
 const LoginScreen = ({navigation}) =>{
 
-    
+    const [categoria, setCategoria] = React.useState(1)
     const [data, setData] = React.useState({
         email: '',
         password: '',
@@ -40,22 +41,38 @@ const LoginScreen = ({navigation}) =>{
     })
     
     const { colors } = useTheme()
+  return(
+    <View style={styles.container}>
+        
+        <View style={styles.header}>
+            <Text style={styles.text_header}>Bem-Vindo!</Text>
+        </View>
+        <Animatable.View animation={'fadeInUpBig'} style={[styles.footer, {backgroundColor: colors.background}]}>
+        <Text style={[styles.text_footer,{color: colors.text}]}>Escolha a Categoria</Text>
+            <View style={{marginVertical:20}}>
+            <Picker 
+                    selectedValue={categoria}
+                    onValueChange={(itemValue) => setCategoria(itemValue)}
+                >
+                    <Picker.Item label="Doador" value={1} />
+                    <Picker.Item label="Donatário" value={2} />
+                    <Picker.Item label="Local" value={3} />
+                </Picker>
+                {
+                    telaLogin(colors, data, setData,categoria, navigation)
+                }
+            </View>
+            
+        </Animatable.View>
+    </View>
+  )
+}
+
+const telaLogin = (colors, data,setData, categoria, navigation) => {
+
     const { signIn } = React.useContext(AuthContext)
 
-    const textInpuChange = (e) => {
-        e.length != 0 ? setData({ ...data, email:e,check_textInputChange: true }) : setData({ ...data, email:e,check_textInputChange: false })  
-    }
-    const handlePasswordChange = (e) => {
-        setData({ ...data, password:e })
-    }
-    const updateSecurityWord = () => {
-        setData({ ...data, secureTextEntry: !data.secureTextEntry })
-    }
-    const forgotPassword = () => {
-        alert('\nUsuario: fiap \n Senha: fiap')
-    }
-    
-    const loginHandle = async (username, password) => {
+    const loginHandle = async (username, password, categoria) => {
 
         let userEmail = ''
         let userPassword = ''
@@ -63,27 +80,38 @@ const LoginScreen = ({navigation}) =>{
         let userId = 0
         let userToken = ''
 
-        await api.post('/Login',{
-            email: username,
-            senha: password
-        }).then(res => {
-            userEmail = res.data.user.dS_LOGIN
-            userPassword = res.data.user.dS_SENHA
-            userName = res.data.user.dS_NOME + ' ' + res.data.user.dS_SOBRENOME 
-            userId = res.data.user.iD_USUARIO
-            userToken = res.data.token
-        }).catch(e=> console.log(e))
-        
-        
-        signIn({
-            id: userId,
-            email: userEmail,
-            username:userName,
-            password: userPassword,
-            userToken:userToken
-        })
-    }
+    
 
+        await api.post(`/`, {
+            
+            "credencial": username,
+            "senha": password,
+            "tpPessoa": categoria
+            
+        }).then(res => {
+            
+            signIn(res.data, categoria)
+        }).catch(e=> {
+            alert("Login Inválido")
+        })
+        
+    }
+    const textInpuChange = (e) => {
+        e.length != 0 ? setData({ ...data, email:e,check_textInputChange: true }) : setData({ ...data, email:e,check_textInputChange: false })  
+    }
+    const handleValidPassword = (e) =>{
+        if (e.length > 0){
+            setData({
+                ...data,
+                isValidPassword: true
+            })
+        } else{
+            setData({
+                ...data,
+                isValidPassword: false
+            })
+        }
+    }
     const handleValidUser = (e) =>{
         /////// validar se existe
         if (e.length > 0){
@@ -99,32 +127,25 @@ const LoginScreen = ({navigation}) =>{
         }
         
     }
+    
 
-    const handleValidPassword = (e) =>{
-        if (e.length > 0){
-            setData({
-                ...data,
-                isValidPassword: true
-            })
-        } else{
-            setData({
-                ...data,
-                isValidPassword: false
-            })
-        }
+    
+
+    const handlePasswordChange = (e) => {
+        setData({ ...data, password:e })
     }
-
-  return(
-    <View style={styles.container}>
-        
-        <View style={styles.header}>
-            <Text style={styles.text_header}>Bem-Vindo!</Text>
-        </View>
-        <Animatable.View animation={'fadeInUpBig'} style={[styles.footer, {backgroundColor: colors.background}]}>
-            <Text style={[styles.text_footer,{color: colors.text}]}>Email</Text>
+    const updateSecurityWord = () => {
+        setData({ ...data, secureTextEntry: !data.secureTextEntry })
+    }
+    const forgotPassword = () => {
+        alert('este recurso ainda nao esta disponivel')
+    }
+    return(
+        <View>
+            <Text style={[styles.text_footer,{color: colors.text}]}>{categoria == 1 || categoria == 2 ? 'Email' : 'CNPJ'}</Text>
             <View style={styles.action}>
                 <FontAwesome name='user-o' color={colors.color_escura} size={20} />
-                <TextInput onChangeText={(e) => textInpuChange(e)} onEndEditing={(e) => handleValidUser(e.nativeEvent.text)} placeholderTextColor={colors.color_clara} placeholder={'Informe o Email'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
+                <TextInput onChangeText={(e) => textInpuChange(e)} onEndEditing={(e) => handleValidUser(e.nativeEvent.text)} placeholderTextColor={colors.color_clara} placeholder={`Informe o ${categoria === 1 || categoria === 2 ? 'Email' : 'CNPJ'}`} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
                 {data.check_textInputChange ?<Animatable.View animation={'bounceIn'}><Feather name='check-circle' color='green' size={20} /></Animatable.View>: null}
                 
             </View>
@@ -145,7 +166,7 @@ const LoginScreen = ({navigation}) =>{
                 </TouchableOpacity>
             </View>
             <View style={styles.button}>
-                <TouchableOpacity onPress={() => loginHandle(data.email, data.password)} style={styles.signIn}>
+                <TouchableOpacity onPress={() => loginHandle(data.email, data.password, categoria)} style={styles.signIn}>
                     <LinearGradient colors={[AZUL_CLARO_COLOR,AZUL_ESCURO_COLOR]} style={styles.signIn} > 
                         <Text style={[styles.textSign, {color:CINZA_COLOR}]}>Entrar</Text>
                     </LinearGradient>
@@ -158,9 +179,9 @@ const LoginScreen = ({navigation}) =>{
                     </LinearGradient>
                 </TouchableOpacity>
             </View>
-        </Animatable.View>
-    </View>
-  )
+        </View>
+        
+    )
 }
 
 const errorMsg = (text) => {

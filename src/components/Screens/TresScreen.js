@@ -61,7 +61,7 @@ const ReceberScreen = ({navigation}) =>{
     await api.get('/Banco/'+userId).then(res=>{
       contaID = res.data.idConta;
     })
-    
+    console.log(contaID);
     await api.get('/Banco/Extrato/'+contaID).then(res=>{
       setObj(res.data)
       console.log(res.data);
@@ -101,7 +101,7 @@ const ExtratoPorMoeda = ({obj, tp}) => {
           <Icon name='more-horizontal' size={20} color={colors.text} />
         </TouchableOpacity>
       </View>
-      {visible ? obj.filter(x => x.tipoMoeda == tp).map(item =>(
+      {visible ? obj.filter(x => tp == x.tipoMoeda).map(item =>(
           <View style={{flexDirection:'row', borderColor:'#f7f7f7', justifyContent:'space-between', borderWidth:1, padding:8}}>
             <View style={{ justifyContent:'center'}}>
               <Text style={{color: colors.text}}>{ new Date(item.data).toLocaleDateString()}</Text>

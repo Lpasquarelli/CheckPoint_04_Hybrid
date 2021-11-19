@@ -11,7 +11,8 @@ import {
     Platform,
     TextInput,
     StatusBar,
-    Alert
+    Alert,
+    Picker
 } from 'react-native';
 
 
@@ -33,6 +34,13 @@ function RegisterScreen({navigation}) {
    
     
     const [data, setData] = React.useState({
+        cpf: '',
+        dataNascimento:'',
+        razaoSocial : '',
+        endereco:'',
+        numero:'',
+        complemento:'',
+        telefone:'',
         email: '',
         nome:'',
         sobrenome:'',
@@ -44,11 +52,32 @@ function RegisterScreen({navigation}) {
         isValidUser: true,
         isValidPassword: true 
     })
-    
+    const handlecomplementoChange = (e) => {
+        setData({ ...data, complemento:e })
+    }
+    const handletelefoneChange = (e) => {
+        setData({ ...data, telefone:e })
+    }
+    const handlenumeroChange = (e) => {
+        setData({ ...data, numero:e })
+    }
+    const handleenderecoChange = (e) => {
+        setData({ ...data, endereco:e })
+    }
+    const handleRazaoSocialChange = (e) => {
+        setData({ ...data, razaoSocial:e })
+    }
+    const handleDataNascimentoChange = (e) => {
+        setData({ ...data, dataNascimento:e })
+    }
+    const handleCpfChange = (e) => {
+        setData({ ...data, cpf:e })
+    }
     
     const { colors } = useTheme()
     const { signIn } = React.useContext(AuthContext)
 
+    const [categoria, setCategoria] = React.useState(1)
     const textInpuChange = (e) => {
         e.length != 0 ? setData({ ...data, email:e,check_textInputChange: true }) : setData({ ...data, email:e,check_textInputChange: false })  
     }
@@ -61,108 +90,45 @@ function RegisterScreen({navigation}) {
     const handlePasswordChange = (e) => {
         setData({ ...data, password:e })
     }
-    const handlePassword2Change = (e) => {
-        setData({ ...data, password2:e })
-    }
     const updateSecurityWord = () => {
         setData({ ...data, secureTextEntry: !data.secureTextEntry })
     }
-    const updateSecurityWord2 = () => {
-        setData({ ...data, secureTextEntry2: !data.secureTextEntry2 })
-    }
-    const forgotPassword = () => {
-        alert('\nUsuario: fiap \n Senha: fiap')
-    }
     
-    const loginHandle = (username, password) => {
-        
-        const foundUser = Users.filter( item => {
-                return username == item.username && password == item.password
-            })
-        if(foundUser.length == 0) {
-            Alert.alert('Login Inválido','Usuário ou Senha Inválidos!', [{text: 'OK'}])
-            return
-        }
-        signIn(foundUser)
-    }
-
-    const handleValidUser = (e) =>{
-        /////// validar se existe
-        if (e.length > 0){
-            setData({
-                ...data,
-                isValidUser: true
-            })
-        } else{
-            setData({
-                ...data,
-                isValidUser: true
-            })
-        }
-        
-    }
-    const handleValidUser2 = (e) =>{
-        /////// validar se existe
-        if (e.length > 0){
-            setData({
-                ...data,
-                isValidUser: true
-            })
-        } else{
-            setData({
-                ...data,
-                isValidUser: true
-            })
-        }
-        
-    }
-    const handleValidUser3 = (e) =>{
-        /////// validar se existe
-        if (e.length > 0){
-            setData({
-                ...data,
-                isValidUser: true
-            })
-        } else{
-            setData({
-                ...data,
-                isValidUser: true
-            })
-        }
-        
-    }
     const cadastraUser = async () => {
         
-        if(data.nome != '' && data.sobrenome != '' && data.email != '' && data.password != '' && data.password2 != ''){
-            await api.post(`Banco/addcliente`,
-            {
-                "dS_NOME": data.nome,
-                "dS_SOBRENOME": data.sobrenome,
-                "nR_IDADE": 20,
-                "nR_CPF": "12312312323",
-                "dT_NASCIMENTO": "2021-10-23T22:56:37.755Z",
-                "dS_LOGIN": data.email,
-                "dS_SENHA": data.password
-            })
-            navigation.pop()
-            
-        }else{
-            alert('Todos os campos sao obrigatorios')
-        }
-    }
+        
 
-    const handleValidPassword = (e) =>{
-        if (e.length > 0){
-            setData({
-                ...data,
-                isValidPassword: true
-            })
-        } else{
-            setData({
-                ...data,
-                isValidPassword: false
-            })
+        if(categoria === 1){
+            api.post('/Cadastro/Doador',{
+                "cpf": data.cpf,
+                "nome": data.nome,
+                "email": data.email,
+                "telefone": data.telefone,
+                "senha": data.password,
+                "dataNascimento": String(data.dataNascimento).split('/').reverse().join('-')
+            }).then(res => console.log(res))
+        }else if(categoria === 2){
+            api.post('/Cadastro/Donatario',{
+                "cpf": data.cpf,
+                "nome": data.nome,
+                "email": data.email,
+                "telefone": data.telefone,
+                "senha": data.password,
+                "dataNascimento": String(data.dataNascimento).split('/').reverse().join('-')
+              }).then(res => console.log(res))
+        }else{
+            api.post('/Cadastro/Local',{
+                "cpf": data.cpf,
+                "razaoSocial": data.razaoSocial,
+                "endereco": data.endereco,
+                "numero": data.numero,
+                "complemento": data.complemento,
+                "telefone": data.telefone,
+                "senha": data.password
+            }).then(res => console.log(res))
         }
+
+        navigation.pop()
     }
 
   return(
@@ -173,47 +139,132 @@ function RegisterScreen({navigation}) {
         </View>
         <Animatable.View animation={'fadeInUpBig'} style={[styles.footer, {backgroundColor: colors.background}]}>
             <ScrollView>
-            <Text style={[styles.text_footer,{color: colors.text}]}>Email</Text>
-            <View style={styles.action}>
-                <FontAwesome name='user-o' color={colors.color_escura} size={20} />
-                <TextInput onChangeText={(e) => textInpuChange(e)} onEndEditing={(e) => handleValidUser(e.nativeEvent.text)} placeholderTextColor={colors.color_clara} placeholder={'Informe o Email'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
-                {data.check_textInputChange ?<Animatable.View animation={'bounceIn'}><Feather name='check-circle' color='green' size={20} /></Animatable.View>: null}
+
+            <Text style={[styles.text_footer,{color: colors.text}]}>Categoria</Text>
+            <View style={{marginVertical:20}}>
+            <Picker 
+                    selectedValue={categoria}
+                    onValueChange={(itemValue) => setCategoria(itemValue)}
+                >
+                    <Picker.Item label="Doador" value={1} />
+                    <Picker.Item label="Donatário" value={2} />
+                    <Picker.Item label="Local" value={3} />
+                </Picker>
                 
             </View>
-            <Text style={[styles.text_footer,{marginTop: 35,color: colors.text}]}>Nome</Text>
-            <View style={styles.action}>
-                <FontAwesome name='user-o' color={colors.color_escura} size={20} />
-                <TextInput onChangeText={(e) => handlenomeChange(e)} onEndEditing={(e) => handleValidUser2(e.nativeEvent.text)} placeholderTextColor={colors.color_clara} placeholder={'Informe o Email'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
-                {data.check_textInputChange ?<Animatable.View animation={'bounceIn'}><Feather name='check-circle' color='green' size={20} /></Animatable.View>: null}
-                
-            </View>
-            <Text style={[styles.text_footer,{marginTop: 35,color: colors.text}]}>Sobrenome</Text>
-            <View style={styles.action}>
-                <FontAwesome name='user-o' color={colors.color_escura} size={20} />
-                <TextInput onChangeText={(e) => handlesobrenomeChange(e)} onEndEditing={(e) => handleValidUser3(e.nativeEvent.text)} placeholderTextColor={colors.color_clara} placeholder={'Informe o Email'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
-                {data.check_textInputChange ?<Animatable.View animation={'bounceIn'}><Feather name='check-circle' color='green' size={20} /></Animatable.View>: null}
-                
-            </View>
-            {data.isValidUser ? null : errorMsg('Usuário Inválido')}
-            <Text style={[styles.text_footer, {marginTop: 35, color: colors.color_escura}]}>Senha</Text>
-            <View style={styles.action}>
-                <Feather name='lock' color={colors.color_escura} size={20} />
-                <TextInput onChangeText={(e) => handlePasswordChange(e)} onEndEditing={(e) => handleValidPassword(e.nativeEvent.text)} secureTextEntry={data.secureTextEntry} placeholderTextColor={colors.color_clara} placeholder={'Informe a Senha'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
-                <TouchableOpacity  onPress={() => {updateSecurityWord()}}>
-                    {data.secureTextEntry? <Feather name='eye-off' color='grey' size={20}/> :<Feather name='eye' color='grey' size={20}/>}
-                </TouchableOpacity>
-                
-            </View>
-            <Text style={[styles.text_footer, {marginTop: 35, color: colors.color_escura}]}>Confirma Senha</Text>
-            <View style={styles.action}>
-                <Feather name='lock' color={colors.color_escura} size={20} />
-                <TextInput onChangeText={(e) => handlePassword2Change(e)} onEndEditing={(e) => handlePassword2Change(e.nativeEvent.text)} secureTextEntry={data.secureTextEntry2} placeholderTextColor={colors.color_clara} placeholder={'Confirme a Senha'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
-                <TouchableOpacity  onPress={() => {updateSecurityWord2()}}>
-                    {data.secureTextEntry2? <Feather name='eye-off' color='grey' size={20}/> :<Feather name='eye' color='grey' size={20}/>}
-                </TouchableOpacity>
-                
-            </View>
-            {data.password2 != data.password && errorMsg('as senhas nao coincidem')}
+            
+            {
+                categoria != 3 ? (
+                    <>
+                        <Text style={[styles.text_footer,{marginTop: 4,color: colors.text}]}>CPF</Text>
+                        <View style={styles.action}>
+                            <FontAwesome name='user-o' color={colors.color_escura} size={20} />
+                            <TextInput onChangeText={(e) => handleCpfChange(e)} maxLength={11} placeholderTextColor={colors.color_clara} placeholder={'Informe o CPF'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
+                            {data.check_textInputChange ?<Animatable.View animation={'bounceIn'}><Feather name='check-circle' color='green' size={20} /></Animatable.View>: null}
+                            
+                        </View>
+
+                        <Text style={[styles.text_footer,{marginTop: 35,color: colors.text}]}>Nome</Text>
+                        <View style={styles.action}>
+                            <FontAwesome name='user-o' color={colors.color_escura} size={20} />
+                            <TextInput onChangeText={(e) => handlenomeChange(e)}  placeholderTextColor={colors.color_clara} placeholder={'Informe o Nome'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
+                            {data.check_textInputChange ?<Animatable.View animation={'bounceIn'}><Feather name='check-circle' color='green' size={20} /></Animatable.View>: null}
+                            
+                        </View>
+
+                        <Text style={[styles.text_footer,{marginTop: 35,color: colors.text}]}>Email</Text>
+                        <View style={styles.action}>
+                            <FontAwesome name='user-o' color={colors.color_escura} size={20} />
+                            <TextInput onChangeText={(e) => textInpuChange(e)} placeholderTextColor={colors.color_clara} placeholder={'Informe o Email'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
+                            {data.check_textInputChange ?<Animatable.View animation={'bounceIn'}><Feather name='check-circle' color='green' size={20} /></Animatable.View>: null}
+                            
+                        </View>
+                        <Text style={[styles.text_footer,{marginTop: 35,color: colors.text}]}>Telefone</Text>
+                        <View style={styles.action}>
+                            <FontAwesome name='user-o' color={colors.color_escura} size={20} />
+                            <TextInput onChangeText={(e) => handletelefoneChange(e)} maxLength={10} placeholderTextColor={colors.color_clara} placeholder={'Informe o Telefone'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
+                            {data.check_textInputChange ?<Animatable.View animation={'bounceIn'}><Feather name='check-circle' color='green' size={20} /></Animatable.View>: null}
+                            
+                        </View>
+                        {data.isValidUser ? null : errorMsg('Usuário Inválido')}
+                        <Text style={[styles.text_footer, {marginTop: 35, color: colors.color_escura}]}>Senha</Text>
+                        <View style={styles.action}>
+                            <Feather name='lock' color={colors.color_escura} size={20} />
+                            <TextInput onChangeText={(e) => handlePasswordChange(e)}  secureTextEntry={data.secureTextEntry} placeholderTextColor={colors.color_clara} placeholder={'Informe a Senha'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
+                            <TouchableOpacity  onPress={() => {updateSecurityWord()}}>
+                                {data.secureTextEntry? <Feather name='eye-off' color='grey' size={20}/> :<Feather name='eye' color='grey' size={20}/>}
+                            </TouchableOpacity>
+                            
+                        </View>
+                        <Text style={[styles.text_footer,{marginTop: 35,color: colors.text}]}>Data de Nascimento</Text>
+                        <View style={styles.action}>
+                            <FontAwesome name='user-o' color={colors.color_escura} size={20} />
+                            <TextInput onChangeText={(e) => handleDataNascimentoChange(e)} maxLength={10} placeholderTextColor={colors.color_clara} placeholder={'Informe o Nascimento'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
+                            {data.check_textInputChange ?<Animatable.View animation={'bounceIn'}><Feather name='check-circle' color='green' size={20} /></Animatable.View>: null}
+                            
+                        </View>
+                    </>
+                ):(
+                    <>
+                        <Text style={[styles.text_footer,{marginTop: 4,color: colors.text}]}>CPF</Text>
+                        <View style={styles.action}>
+                            <FontAwesome name='user-o' color={colors.color_escura} size={20} />
+                            <TextInput onChangeText={(e) => handleCpfChange(e)} placeholderTextColor={colors.color_clara} maxLength={11} placeholder={'Informe o CPF'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
+                            {data.check_textInputChange ?<Animatable.View animation={'bounceIn'}><Feather name='check-circle' color='green' size={20} /></Animatable.View>: null}
+                            
+                        </View>
+
+                        <Text style={[styles.text_footer,{marginTop: 35,color: colors.text}]}>Razao Social</Text>
+                        <View style={styles.action}>
+                            <FontAwesome name='user-o' color={colors.color_escura} size={20} />
+                            <TextInput onChangeText={(e) => handleRazaoSocialChange(e)}  placeholderTextColor={colors.color_clara} placeholder={'Informe a Razao Social'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
+                            {data.check_textInputChange ?<Animatable.View animation={'bounceIn'}><Feather name='check-circle' color='green' size={20} /></Animatable.View>: null}
+                            
+                        </View>
+
+                        <Text style={[styles.text_footer,{marginTop: 35,color: colors.text}]}>Endereco</Text>
+                        <View style={styles.action}>
+                            <FontAwesome name='user-o' color={colors.color_escura} size={20} />
+                            <TextInput onChangeText={(e) => handleenderecoChange(e)} placeholderTextColor={colors.color_clara} placeholder={'Informe o Endereco'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
+                            {data.check_textInputChange ?<Animatable.View animation={'bounceIn'}><Feather name='check-circle' color='green' size={20} /></Animatable.View>: null}
+                            
+                        </View>
+                        <Text style={[styles.text_footer,{marginTop: 35,color: colors.text}]}>Numero</Text>
+                        <View style={styles.action}>
+                            <FontAwesome name='user-o' color={colors.color_escura} size={20} />
+                            <TextInput onChangeText={(e) => handlenumeroChange(e)} placeholderTextColor={colors.color_clara} placeholder={'Informe o Numero'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
+                            {data.check_textInputChange ?<Animatable.View animation={'bounceIn'}><Feather name='check-circle' color='green' size={20} /></Animatable.View>: null}
+                            
+                        </View>
+                        <Text style={[styles.text_footer,{marginTop: 35,color: colors.text}]}>Complemento</Text>
+                        <View style={styles.action}>
+                            <FontAwesome name='user-o' color={colors.color_escura} size={20} />
+                            <TextInput onChangeText={(e) => handlecomplementoChange(e)} placeholderTextColor={colors.color_clara} placeholder={'Informe o Complemento'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
+                            {data.check_textInputChange ?<Animatable.View animation={'bounceIn'}><Feather name='check-circle' color='green' size={20} /></Animatable.View>: null}
+                            
+                        </View>
+                        <Text style={[styles.text_footer,{marginTop: 35,color: colors.text}]}>Telefone</Text>
+                        <View style={styles.action}>
+                            <FontAwesome name='user-o' color={colors.color_escura} size={20} />
+                            <TextInput onChangeText={(e) => handletelefoneChange(e)} placeholderTextColor={colors.color_clara} maxLength={10} placeholder={'Informe o Telefone'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
+                            {data.check_textInputChange ?<Animatable.View animation={'bounceIn'}><Feather name='check-circle' color='green' size={20} /></Animatable.View>: null}
+                            
+                        </View>
+                        {data.isValidUser ? null : errorMsg('Usuário Inválido')}
+                        <Text style={[styles.text_footer, {marginTop: 35, color: colors.color_escura}]}>Senha</Text>
+                        <View style={styles.action}>
+                            <Feather name='lock' color={colors.color_escura} size={20} />
+                            <TextInput onChangeText={(e) => handlePasswordChange(e)}  secureTextEntry={data.secureTextEntry} placeholderTextColor={colors.color_clara} placeholder={'Informe a Senha'} style={[styles.textInput,{color: colors.color_escura}]} autoCapitalize={'none'}/>
+                            <TouchableOpacity  onPress={() => {updateSecurityWord()}}>
+                                {data.secureTextEntry? <Feather name='eye-off' color='grey' size={20}/> :<Feather name='eye' color='grey' size={20}/>}
+                            </TouchableOpacity>
+                            
+                        </View>
+                    </>
+                )
+
+            }
+            
             <View style={styles.button}>
                 <TouchableOpacity onPress={() => cadastraUser()} style={styles.signIn}>
                     <LinearGradient colors={[AZUL_CLARO_COLOR,AZUL_ESCURO_COLOR]} style={styles.signIn} > 

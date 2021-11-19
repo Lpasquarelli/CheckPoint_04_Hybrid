@@ -24,7 +24,7 @@ const SplashScreen = ({navigation}) =>{
             <Animatable.Image animation={'bounceIn'} duration={1500} source={require('../../assets/img/logo2.png')} style={styles.logo} resizeMode='stretch'/>
         </View>
         <Animatable.View style={[ styles.footer, {backgroundColor: colors.background}]} animation={'fadeInUpBig'} >
-            <Text style={[styles.title, {color: colors.text}]}>Entre com sua Conta</Text>
+            <Text style={[styles.title, {color: colors.text}]}>Entre com sua conta</Text>
             <Text style={styles.text}>ou Registre-se</Text>
             <View style={styles.button}>
                 <TouchableOpacity onPress={() => {navigation.navigate('LoginScreen')}}>
@@ -61,8 +61,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 30,
     },
     logo:{
-        width: 700,
-        height: height_logo,
+        width: 300,
+        height: 300,
     },
     title:{
         color: AZUL_CLARO_COLOR,
